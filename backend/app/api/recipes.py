@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, delete
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models import User, Recipe, Ingredient, Step, Tag
+from app.models import User, Recipe, Ingredient, Step, Tag, RecipeTag
 from app.schemas.recipe import RecipeIn, RecipeOut, RecipeListItem
 import uuid
 
@@ -53,6 +53,7 @@ async def create_recipe(
         **body.model_dump(exclude={"tag_ids", "ingredients", "steps"}),
     )
     db.add(recipe)
+    await db.flush()  # flush so recipe.id is persisted and identity established
 
     for i, ing in enumerate(body.ingredients):
         db.add(Ingredient(id=str(uuid.uuid4()), recipe_id=recipe.id, **ing.model_dump(exclude={"order"}), order=i))
@@ -60,8 +61,8 @@ async def create_recipe(
         db.add(Step(id=str(uuid.uuid4()), recipe_id=recipe.id, **step.model_dump(exclude={"order"}), order=i))
 
     if body.tag_ids:
-        tags_result = await db.execute(select(Tag).where(Tag.id.in_(body.tag_ids)))
-        recipe.tags = list(tags_result.scalars().all())
+        for tag_id in body.tag_ids:
+            db.add(RecipeTag(recipe_id=recipe.id, tag_id=tag_id))
 
     await db.commit()
 
@@ -111,8 +112,10 @@ async def update_recipe(
         db.add(Step(id=str(uuid.uuid4()), recipe_id=recipe.id, **step.model_dump(exclude={"order"}), order=i))
 
     if body.tag_ids is not None:
-        tags_result = await db.execute(select(Tag).where(Tag.id.in_(body.tag_ids)))
-        recipe.tags = list(tags_result.scalars().all())
+        # Delete existing tag associations and re-insert
+        await db.execute(delete(RecipeTag).where(RecipeTag.recipe_id == recipe_id))
+        for tag_id in body.tag_ids:
+            db.add(RecipeTag(recipe_id=recipe.id, tag_id=tag_id))
 
     await db.commit()
     result = await db.execute(_recipe_with_relations().where(Recipe.id == recipe_id))
