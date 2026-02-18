@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, recipes, tags, import_
+from app.api import auth, recipes, tags, import_, shopping
 
 app = FastAPI(title="Recipe Log", version="0.1.0")
 
@@ -16,6 +16,7 @@ app.include_router(auth.router)
 app.include_router(recipes.router)
 app.include_router(tags.router)
 app.include_router(import_.router)
+app.include_router(shopping.router)
 
 @app.get("/api/health")
 async def health():
