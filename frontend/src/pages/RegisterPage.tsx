@@ -53,7 +53,7 @@ export default function RegisterPage() {
           <p className="text-zinc-500">Create your household account</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((d) => registerMutation.mutate(d))} className="space-y-4">
+          <form onSubmit={handleSubmit((d) => registerMutation.mutate(d))} className="space-y-4" noValidate>
             <div className="space-y-1">
               <Label htmlFor="household_name">Household name</Label>
               <Input

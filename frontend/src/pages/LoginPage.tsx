@@ -50,7 +50,7 @@ export default function LoginPage() {
           <p className="text-zinc-500">Sign in to your household</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((d) => loginMutation.mutate(d))} className="space-y-4">
+          <form onSubmit={handleSubmit((d) => loginMutation.mutate(d))} className="space-y-4" noValidate>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />

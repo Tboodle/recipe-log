@@ -24,6 +24,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     sessionStorage.setItem("token", token);
   },
   fetchMe: async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      set({ user: null, isLoading: false });
+      return;
+    }
     try {
       const { data } = await api.get("/auth/me");
       set({ user: data, isLoading: false });
