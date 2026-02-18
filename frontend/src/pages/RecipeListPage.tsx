@@ -5,14 +5,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// ImportModal will be replaced with real import in Task 20
-let ImportModal: React.ComponentType<{ open: boolean; onOpenChange: (o: boolean) => void }>;
-try {
-  ImportModal = (_props) => null;
-} catch {
-  ImportModal = () => null;
-}
+import ImportModal from "@/components/ImportModal";
 
 export default function RecipeListPage() {
   const [q, setQ] = useState("");
