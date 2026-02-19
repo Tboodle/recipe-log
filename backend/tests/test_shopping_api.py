@@ -63,6 +63,54 @@ async def test_add_from_recipe(authed_client):
     names = {i["ingredient_name"] for i in items}
     assert "spaghetti" in names
 
+async def test_add_from_recipe_all_ingredients(authed_client):
+    """ingredient_ids=None should add all ingredients."""
+    recipe_resp = await authed_client.post("/api/recipes", json={
+        "title": "Soup",
+        "ingredients": [
+            {"name": "water", "quantity": 2.0, "unit": "cup"},
+            {"name": "salt", "quantity": 1.0, "unit": "teaspoon"},
+        ],
+    })
+    recipe_id = recipe_resp.json()["id"]
+    list_resp = await authed_client.post("/api/shopping", json={"name": "Soup Shop"})
+    list_id = list_resp.json()["id"]
+
+    resp = await authed_client.post(f"/api/shopping/{list_id}/add-from-recipe", json={
+        "recipe_id": recipe_id,
+        # no ingredient_ids — should add all
+    })
+    assert resp.status_code == 200
+    assert len(resp.json()["items"]) == 2
+
+
+async def test_add_from_recipe_combines_same_ingredient(authed_client):
+    """Adding butter from two recipes should combine into one list item."""
+    recipe1 = await authed_client.post("/api/recipes", json={
+        "title": "Recipe 1",
+        "ingredients": [{"name": "butter", "quantity": 0.5, "unit": "cup"}],
+    })
+    recipe2 = await authed_client.post("/api/recipes", json={
+        "title": "Recipe 2",
+        "ingredients": [{"name": "butter", "quantity": 4.0, "unit": "tablespoon"}],
+    })
+    list_resp = await authed_client.post("/api/shopping", json={"name": "Combined"})
+    list_id = list_resp.json()["id"]
+
+    await authed_client.post(f"/api/shopping/{list_id}/add-from-recipe", json={
+        "recipe_id": recipe1.json()["id"],
+    })
+    resp = await authed_client.post(f"/api/shopping/{list_id}/add-from-recipe", json={
+        "recipe_id": recipe2.json()["id"],
+    })
+    items = resp.json()["items"]
+    butter_items = [i for i in items if i["ingredient_name"].lower() == "butter"]
+    assert len(butter_items) == 1
+    # 0.5 cup + 4 tbsp = 0.5 cup + 0.25 cup = 0.75 cup
+    assert butter_items[0]["quantity"] == pytest.approx(0.75, rel=1e-2)
+    assert butter_items[0]["unit"] == "cup"
+
+
 async def test_delete_list(authed_client):
     resp = await authed_client.post("/api/shopping", json={"name": "Temp"})
     list_id = resp.json()["id"]

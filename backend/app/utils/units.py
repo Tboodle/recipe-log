@@ -73,7 +73,7 @@ _WEIGHT_PREF = ["kilogram", "pound", "ounce", "gram"]
 def _best_volume(ml: float) -> tuple[float, str]:
     for unit in _VOLUME_PREF:
         qty = ml / _VOLUME_TO_ML[unit]
-        if qty >= 0.99:
+        if qty >= 0.7:
             return qty, unit
     return ml, "milliliter"
 
@@ -81,7 +81,7 @@ def _best_volume(ml: float) -> tuple[float, str]:
 def _best_weight(g: float) -> tuple[float, str]:
     for unit in _WEIGHT_PREF:
         qty = g / _WEIGHT_TO_G[unit]
-        if qty >= 0.99:
+        if qty >= 0.7:
             return qty, unit
     return g, "gram"
 

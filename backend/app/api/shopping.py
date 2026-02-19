@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models import User, ShoppingList, ShoppingItem, Ingredient
 from app.schemas.shopping import ShoppingListIn, ShoppingListOut, ShoppingItemIn, AddFromRecipeRequest
+from app.utils.units import try_combine
 import uuid
 
 router = APIRouter(prefix="/api/shopping", tags=["shopping"])
@@ -54,23 +55,53 @@ async def add_item(list_id: str, body: ShoppingItemIn, db: AsyncSession = Depend
     return await _get_list_with_items(db, list_id, current_user.household_id)
 
 @router.post("/{list_id}/add-from-recipe", response_model=ShoppingListOut)
-async def add_from_recipe(list_id: str, body: AddFromRecipeRequest, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def add_from_recipe(
+    list_id: str,
+    body: AddFromRecipeRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     await _get_list_with_items(db, list_id, current_user.household_id)  # verify ownership
-    result = await db.execute(
-        select(Ingredient).where(
-            Ingredient.id.in_(body.ingredient_ids),
-            Ingredient.recipe_id == body.recipe_id,
+
+    # Fetch ingredients — all or selected
+    if body.ingredient_ids is None:
+        result = await db.execute(
+            select(Ingredient).where(Ingredient.recipe_id == body.recipe_id)
         )
+    else:
+        result = await db.execute(
+            select(Ingredient).where(
+                Ingredient.id.in_(body.ingredient_ids),
+                Ingredient.recipe_id == body.recipe_id,
+            )
+        )
+    ingredients = result.scalars().all()
+
+    # Fetch existing items in the list for combining
+    existing_result = await db.execute(
+        select(ShoppingItem).where(ShoppingItem.list_id == list_id)
     )
-    for ing in result.scalars().all():
-        db.add(ShoppingItem(
+    existing_items = existing_result.scalars().all()
+    existing_by_name = {item.ingredient_name.lower(): item for item in existing_items}
+
+    for ing in ingredients:
+        existing = existing_by_name.get(ing.name.lower())
+        if existing:
+            combined = try_combine(existing.quantity, existing.unit, ing.quantity, ing.unit)
+            if combined:
+                existing.quantity, existing.unit = combined
+                continue
+        new_item = ShoppingItem(
             id=str(uuid.uuid4()),
             list_id=list_id,
             recipe_id=body.recipe_id,
             ingredient_name=ing.name,
             quantity=ing.quantity,
             unit=ing.unit,
-        ))
+        )
+        db.add(new_item)
+        existing_by_name[ing.name.lower()] = new_item
+
     await db.commit()
     return await _get_list_with_items(db, list_id, current_user.household_id)
 
