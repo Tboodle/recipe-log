@@ -136,3 +136,30 @@ def format_quantity(qty: float | None) -> str:
     if not frac_str:
         return str(whole) if abs(frac) < 0.02 else f"{qty:.4g}"
     return f"{whole} {frac_str}"
+
+import re as _re
+
+def parse_ingredient_string(line: str) -> "ParsedIngredient":
+    """Best-effort parse of a raw ingredient string like '2 cups flour'.
+
+    Imports ParsedIngredient lazily to avoid module-level circular import risk.
+    """
+    from app.services.parser.base import ParsedIngredient
+
+    _UNIT_PAT = (
+        r"teaspoons?|tablespoons?|tbsps?|tsps?|cups?|pints?|quarts?|gallons?|"
+        r"ounces?|oz|pounds?|lbs?|grams?|g|kilograms?|kg|ml|liters?|l|"
+        r"cloves?|cans?|slices?|pieces?|sprigs?|bunches?"
+    )
+    m = _re.match(
+        rf'^([\d\s/]+)?\s*({_UNIT_PAT})?\s*(.+)',
+        line.strip(), _re.IGNORECASE
+    )
+    if m:
+        qty_str, unit_str, name = m.group(1), m.group(2), m.group(3)
+        return ParsedIngredient(
+            name=name.strip(),
+            quantity=parse_fraction(qty_str.strip()) if qty_str else None,
+            unit=unit_str.strip().lower() if unit_str else None,
+        )
+    return ParsedIngredient(name=line.strip())
