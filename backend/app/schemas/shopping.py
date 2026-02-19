@@ -3,14 +3,14 @@ from datetime import datetime
 
 class ShoppingItemIn(BaseModel):
     ingredient_name: str
-    quantity: str | None = None
+    quantity: float | None = None
     unit: str | None = None
     recipe_id: str | None = None
 
 class ShoppingItemOut(BaseModel):
     id: str
     ingredient_name: str
-    quantity: str | None
+    quantity: float | None
     unit: str | None
     recipe_id: str | None
     checked: bool
@@ -31,4 +31,4 @@ class ShoppingListOut(BaseModel):
 
 class AddFromRecipeRequest(BaseModel):
     recipe_id: str
-    ingredient_ids: list[str]
+    ingredient_ids: list[str] | None = None

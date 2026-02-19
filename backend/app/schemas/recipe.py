@@ -3,7 +3,7 @@ from datetime import datetime
 
 class IngredientIn(BaseModel):
     name: str
-    quantity: str | None = None
+    quantity: float | None = None
     unit: str | None = None
     notes: str | None = None
     order: int = 0

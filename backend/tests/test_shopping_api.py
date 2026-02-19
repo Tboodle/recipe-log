@@ -17,7 +17,7 @@ async def test_add_item_manually(authed_client):
 
     resp = await authed_client.post(f"/api/shopping/{list_id}/items", json={
         "ingredient_name": "milk",
-        "quantity": "2",
+        "quantity": 2.0,
         "unit": "liters",
     })
     assert resp.status_code == 201
@@ -43,8 +43,8 @@ async def test_add_from_recipe(authed_client):
     recipe_resp = await authed_client.post("/api/recipes", json={
         "title": "Pasta",
         "ingredients": [
-            {"name": "spaghetti", "quantity": "400", "unit": "g"},
-            {"name": "eggs", "quantity": "4"},
+            {"name": "spaghetti", "quantity": 400.0, "unit": "g"},
+            {"name": "eggs", "quantity": 4.0},
         ],
     })
     recipe_id = recipe_resp.json()["id"]
