@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Clock, ChefHat, Users, Trash2, ShoppingCart, Play, ArrowLeft } from "lucide-react";
 import { useRecipe, useDeleteRecipe } from "@/hooks/useRecipes";
 import AddToListDialog from "@/components/AddToListDialog";
+import { formatQuantity } from "@/lib/quantity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +17,7 @@ export default function RecipeDetailPage() {
   const deleteRecipe = useDeleteRecipe();
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [addToListOpen, setAddToListOpen] = useState(false);
+  const [addAllOpen, setAddAllOpen] = useState(false);
 
   const toggleIngredient = (ingId: string) => {
     setCheckedIds((prev) => {
@@ -64,6 +66,15 @@ export default function RecipeDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-4xl font-extrabold text-zinc-900 leading-tight">{recipe.title}</h1>
           <div className="flex gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
+              onClick={() => setAddAllOpen(true)}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Add to List
+            </Button>
             <Link to={`/recipes/${id}/cook`}>
               <Button className="bg-green-500 text-white hover:bg-green-600 font-bold gap-2">
                 <Play className="h-4 w-4" /> Cook
@@ -170,9 +181,9 @@ export default function RecipeDetailPage() {
                 className="border-zinc-300"
               />
               <label htmlFor={ing.id} className="text-zinc-700 cursor-pointer leading-snug">
-                {ing.quantity && (
+                {(ing.quantity != null || ing.unit) && (
                   <span className="font-semibold text-zinc-900">
-                    {ing.quantity}
+                    {formatQuantity(ing.quantity)}
                     {ing.unit ? ` ${ing.unit}` : ""}{" "}
                   </span>
                 )}
@@ -214,6 +225,11 @@ export default function RecipeDetailPage() {
         onOpenChange={setAddToListOpen}
         recipeId={id!}
         ingredientIds={selectedIds}
+      />
+      <AddToListDialog
+        open={addAllOpen}
+        onOpenChange={setAddAllOpen}
+        recipeId={id!}
       />
     </div>
   );
