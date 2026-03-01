@@ -20,7 +20,7 @@ def _recipe_with_relations():
 @router.get("", response_model=list[RecipeListItem])
 async def list_recipes(
     q: str | None = Query(None),
-    tag_id: str | None = Query(None),
+    tag_names: list[str] = Query(default=[]),
     cuisine: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -35,8 +35,18 @@ async def list_recipes(
         stmt = stmt.where(or_(Recipe.title.ilike(f"%{q}%"), Recipe.description.ilike(f"%{q}%")))
     if cuisine:
         stmt = stmt.where(Recipe.cuisine.ilike(f"%{cuisine}%"))
-    if tag_id:
-        stmt = stmt.join(Recipe.tags).where(Tag.id == tag_id)
+    # AND filter: each selected tag name must match a tag on the recipe
+    for name in tag_names:
+        tag_alias = Tag.__table__.alias()
+        recipe_tag_alias = RecipeTag.__table__.alias()
+        stmt = stmt.where(
+            Recipe.id.in_(
+                select(recipe_tag_alias.c.recipe_id)
+                .join(tag_alias, tag_alias.c.id == recipe_tag_alias.c.tag_id)
+                .where(tag_alias.c.name == name)
+                .scalar_subquery()
+            )
+        )
 
     result = await db.execute(stmt)
     return result.scalars().all()

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import AddToListDialog from "@/components/AddToListDialog";
 import type { RecipeListItem } from "@/hooks/useRecipes";
+import { toTitleCase } from "@/lib/quantity";
 
 export default function RecipeCard({ recipe }: { recipe: RecipeListItem }) {
   const [addOpen, setAddOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function RecipeCard({ recipe }: { recipe: RecipeListItem }) {
             )}
             <CardContent className="p-4 space-y-2">
               <h3 className="font-bold text-lg leading-snug text-zinc-900 line-clamp-2">
-                {recipe.title}
+                {toTitleCase(recipe.title)}
               </h3>
               {recipe.description && (
                 <p className="text-sm text-zinc-500 line-clamp-2">{recipe.description}</p>

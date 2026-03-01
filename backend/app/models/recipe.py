@@ -10,6 +10,7 @@ class Tag(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     household_id: Mapped[str] = mapped_column(String, ForeignKey("households.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    category: Mapped[str] = mapped_column(String(50), default="custom")
     color: Mapped[str] = mapped_column(String(7), default="#84cc16")  # tailwind lime-500
 
     household: Mapped["Household"] = relationship(back_populates="tags")

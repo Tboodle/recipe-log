@@ -23,7 +23,10 @@ class StepOut(StepIn):
 class TagOut(BaseModel):
     id: str
     name: str
+    category: str
     color: str
+
+    model_config = {"from_attributes": True}
 
 class RecipeIn(BaseModel):
     title: str

@@ -8,6 +8,7 @@ export interface ShoppingItem {
   unit: string | null;
   recipe_id: string | null;
   checked: boolean;
+  category: string | null;
 }
 
 export interface ShoppingList {

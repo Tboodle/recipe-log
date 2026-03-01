@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, X, Timer, RotateCcw } from "lucide-react";
 import { useRecipe } from "@/hooks/useRecipes";
+import { toTitleCase } from "@/lib/quantity";
 import { Button } from "@/components/ui/button";
 
 export default function CookModePage() {
@@ -61,7 +62,7 @@ export default function CookModePage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-6 pb-2">
         <div className="max-w-xs">
-          <p className="text-zinc-400 text-sm font-medium truncate">{recipe.title}</p>
+          <p className="text-zinc-400 text-sm font-medium truncate">{toTitleCase(recipe.title)}</p>
           <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mt-0.5">
             Step {stepIndex + 1} / {steps.length}
           </p>

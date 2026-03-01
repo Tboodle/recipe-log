@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Clock, ChefHat, Users, Trash2, ShoppingCart, Play, ArrowLeft } from "lucide-react";
 import { useRecipe, useDeleteRecipe } from "@/hooks/useRecipes";
 import AddToListDialog from "@/components/AddToListDialog";
-import { formatQuantity } from "@/lib/quantity";
-import { Badge } from "@/components/ui/badge";
+import TagEditor from "@/components/TagEditor";
+import { formatQuantity, toTitleCase } from "@/lib/quantity";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -64,7 +64,7 @@ export default function RecipeDetailPage() {
       {/* Header */}
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-4xl font-extrabold text-zinc-900 leading-tight">{recipe.title}</h1>
+          <h1 className="text-4xl font-extrabold text-zinc-900 leading-tight">{toTitleCase(recipe.title)}</h1>
           <div className="flex gap-2 shrink-0">
             <Button
               variant="outline"
@@ -93,23 +93,7 @@ export default function RecipeDetailPage() {
         </div>
 
         {/* Tags */}
-        {recipe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {recipe.tags.map((tag) => (
-              <Badge
-                key={tag.id}
-                style={{
-                  backgroundColor: tag.color + "22",
-                  color: tag.color,
-                  borderColor: tag.color + "44",
-                }}
-                className="border font-medium"
-              >
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
-        )}
+        <TagEditor recipeId={id!} tags={recipe.tags} />
 
         {/* Meta */}
         <div className="flex flex-wrap gap-4 text-sm text-zinc-500">

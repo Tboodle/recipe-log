@@ -1,12 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, ShoppingCart, LayoutDashboard } from "lucide-react";
+import { BookOpen, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 
 const links = [
-  { to: "/", icon: LayoutDashboard, label: "Home" },
-  { to: "/recipes", icon: BookOpen, label: "Recipes" },
-  { to: "/shopping", icon: ShoppingCart, label: "Shopping" },
+  { to: "/", icon: BookOpen, label: "Recipes", match: (p: string) => p === "/" || p.startsWith("/recipes") },
+  { to: "/shopping", icon: ShoppingCart, label: "Shopping", match: (p: string) => p.startsWith("/shopping") },
 ];
 
 export default function Nav() {
@@ -19,10 +18,10 @@ export default function Nav() {
         recipe<span className="text-amber-400">log</span>
       </Link>
       <div className="flex items-center gap-2">
-        {links.map(({ to, icon: Icon, label }) => (
+        {links.map(({ to, icon: Icon, label, match }) => (
           <Link key={to} to={to}>
             <Button
-              variant={location.pathname === to ? "default" : "ghost"}
+              variant={match(location.pathname) ? "default" : "ghost"}
               size="sm"
               className="gap-2"
             >

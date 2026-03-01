@@ -14,6 +14,7 @@ class ShoppingItemOut(BaseModel):
     unit: str | None
     recipe_id: str | None
     checked: bool
+    category: str | None
 
     model_config = {"from_attributes": True}
 

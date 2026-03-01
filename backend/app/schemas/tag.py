@@ -2,11 +2,12 @@ from pydantic import BaseModel
 
 class TagIn(BaseModel):
     name: str
-    color: str = "#84cc16"
+    category: str = "custom"
 
 class TagOut(BaseModel):
     id: str
     name: str
+    category: str
     color: str
     household_id: str
 

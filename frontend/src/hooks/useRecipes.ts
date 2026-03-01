@@ -4,7 +4,13 @@ import { api } from "@/lib/api";
 export interface Tag {
   id: string;
   name: string;
+  category: string;
   color: string;
+}
+
+export interface TagIn {
+  name: string;
+  category: string;
 }
 
 export interface RecipeListItem {
@@ -51,16 +57,37 @@ export interface Recipe extends RecipeListItem {
   steps: Step[];
 }
 
-export function useRecipes(params?: { q?: string; tag_id?: string; cuisine?: string }) {
+export function useRecipes(params?: { q?: string; tag_names?: string[]; cuisine?: string }) {
   return useQuery<RecipeListItem[]>({
     queryKey: ["recipes", params],
     queryFn: async () => {
       const searchParams = new URLSearchParams();
       if (params?.q) searchParams.set("q", params.q);
-      if (params?.tag_id) searchParams.set("tag_id", params.tag_id);
       if (params?.cuisine) searchParams.set("cuisine", params.cuisine);
+      for (const name of params?.tag_names ?? []) {
+        searchParams.append("tag_names", name);
+      }
       const { data } = await api.get(`/recipes?${searchParams}`);
       return data;
+    },
+  });
+}
+
+export function useTags() {
+  return useQuery<Tag[]>({
+    queryKey: ["tags"],
+    queryFn: () => api.get("/tags").then((r) => r.data),
+  });
+}
+
+export function useUpdateRecipeTags(recipeId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (tags: TagIn[]) =>
+      api.put(`/tags/recipes/${recipeId}`, tags).then((r) => r.data as Recipe),
+    onSuccess: (updated) => {
+      qc.setQueryData(["recipe", recipeId], updated);
+      qc.invalidateQueries({ queryKey: ["recipes"] });
     },
   });
 }

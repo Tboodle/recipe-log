@@ -1,9 +1,61 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useShoppingList, useToggleItem } from "@/hooks/useShoppingLists";
+import type { ShoppingItem } from "@/hooks/useShoppingLists";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatQuantity } from "@/lib/quantity";
+
+const CATEGORY_ORDER = [
+  "Produce",
+  "Meat & Seafood",
+  "Dairy & Eggs",
+  "Bakery & Bread",
+  "Pantry & Dry Goods",
+  "Frozen",
+  "Beverages",
+  "Condiments & Sauces",
+  "Other",
+];
+
+function groupByCategory(items: ShoppingItem[]): Array<{ category: string; items: ShoppingItem[] }> {
+  const map = new Map<string, ShoppingItem[]>();
+  for (const item of items) {
+    const cat = item.category ?? "Other";
+    if (!map.has(cat)) map.set(cat, []);
+    map.get(cat)!.push(item);
+  }
+  const result: Array<{ category: string; items: ShoppingItem[] }> = [];
+  for (const cat of CATEGORY_ORDER) {
+    if (map.has(cat)) result.push({ category: cat, items: map.get(cat)! });
+  }
+  // Any categories not in the ordered list (shouldn't happen, but just in case)
+  for (const [cat, its] of map) {
+    if (!CATEGORY_ORDER.includes(cat)) result.push({ category: cat, items: its });
+  }
+  return result;
+}
+
+function ItemRow({ item, onToggle }: { item: ShoppingItem; onToggle: () => void }) {
+  return (
+    <label className="flex items-center gap-3 p-4 bg-white rounded-xl border border-zinc-200 cursor-pointer hover:border-amber-300 transition-colors">
+      <Checkbox
+        checked={false}
+        onCheckedChange={onToggle}
+        className="border-zinc-300"
+      />
+      <span className="text-zinc-800 leading-snug">
+        {(item.quantity != null || item.unit) && (
+          <strong>
+            {formatQuantity(item.quantity)}
+            {item.unit ? ` ${item.unit}` : ""}{" "}
+          </strong>
+        )}
+        {item.ingredient_name}
+      </span>
+    </label>
+  );
+}
 
 export default function ShoppingListDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +75,7 @@ export default function ShoppingListDetailPage() {
 
   const unchecked = list.items.filter((i) => !i.checked);
   const checked = list.items.filter((i) => i.checked);
+  const groups = groupByCategory(unchecked);
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
@@ -44,31 +97,21 @@ export default function ShoppingListDetailPage() {
         </div>
       )}
 
-      {/* Unchecked items */}
-      {unchecked.length > 0 && (
-        <ul className="space-y-2">
-          {unchecked.map((item) => (
-            <li key={item.id}>
-              <label className="flex items-center gap-3 p-4 bg-white rounded-xl border border-zinc-200 cursor-pointer hover:border-amber-300 transition-colors">
-                <Checkbox
-                  checked={false}
-                  onCheckedChange={() => toggleItem.mutate(item.id)}
-                  className="border-zinc-300"
-                />
-                <span className="text-zinc-800 leading-snug">
-                  {(item.quantity != null || item.unit) && (
-                    <strong>
-                      {formatQuantity(item.quantity)}
-                      {item.unit ? ` ${item.unit}` : ""}{" "}
-                    </strong>
-                  )}
-                  {item.ingredient_name}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Unchecked items grouped by category */}
+      {groups.map(({ category, items }) => (
+        <div key={category} className="space-y-2">
+          <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+            {category}
+          </p>
+          <ul className="space-y-2">
+            {items.map((item) => (
+              <li key={item.id}>
+                <ItemRow item={item} onToggle={() => toggleItem.mutate(item.id)} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       {/* Checked items */}
       {checked.length > 0 && (

@@ -7,6 +7,7 @@ from app.core.deps import get_current_user
 from app.models import User, ShoppingList, ShoppingItem, Ingredient
 from app.schemas.shopping import ShoppingListIn, ShoppingListOut, ShoppingItemIn, AddFromRecipeRequest
 from app.utils.units import try_combine
+from app.utils.categorize import categorize_ingredient
 import uuid
 
 router = APIRouter(prefix="/api/shopping", tags=["shopping"])
@@ -49,7 +50,12 @@ async def get_list(list_id: str, db: AsyncSession = Depends(get_db), current_use
 @router.post("/{list_id}/items", response_model=ShoppingListOut, status_code=201)
 async def add_item(list_id: str, body: ShoppingItemIn, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     await _get_list_with_items(db, list_id, current_user.household_id)  # verify ownership
-    item = ShoppingItem(id=str(uuid.uuid4()), list_id=list_id, **body.model_dump())
+    item = ShoppingItem(
+        id=str(uuid.uuid4()),
+        list_id=list_id,
+        category=categorize_ingredient(body.ingredient_name),
+        **body.model_dump(),
+    )
     db.add(item)
     await db.commit()
     return await _get_list_with_items(db, list_id, current_user.household_id)
@@ -98,6 +104,7 @@ async def add_from_recipe(
             ingredient_name=ing.name,
             quantity=ing.quantity,
             unit=ing.unit,
+            category=categorize_ingredient(ing.name),
         )
         db.add(new_item)
         existing_by_name[ing.name.lower()] = new_item

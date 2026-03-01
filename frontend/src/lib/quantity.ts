@@ -1,3 +1,5 @@
+export { titleCase as toTitleCase } from "title-case";
+
 const FRACTIONS: Array<[number, string]> = [
   [1 / 8, "1/8"],
   [1 / 4, "1/4"],

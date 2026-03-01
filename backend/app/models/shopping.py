@@ -20,10 +20,11 @@ class ShoppingItem(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     list_id: Mapped[str] = mapped_column(String, ForeignKey("shopping_lists.id"), nullable=False)
-    recipe_id: Mapped[str | None] = mapped_column(String, ForeignKey("recipes.id"), nullable=True)
+    recipe_id: Mapped[str | None] = mapped_column(String, ForeignKey("recipes.id", ondelete="SET NULL"), nullable=True)
     ingredient_name: Mapped[str] = mapped_column(String(500), nullable=False)
     quantity: Mapped[float | None] = mapped_column(Float, nullable=True)
     unit: Mapped[str | None] = mapped_column(String(100), nullable=True)
     checked: Mapped[bool] = mapped_column(Boolean, default=False)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     list: Mapped["ShoppingList"] = relationship(back_populates="items")

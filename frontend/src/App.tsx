@@ -56,8 +56,8 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<DashboardPage />} />
-            <Route path="recipes" element={<RecipeListPage />} />
+            <Route index element={<RecipeListPage />} />
+            <Route path="recipes" element={<Navigate to="/" replace />} />
             <Route path="recipes/:id" element={<RecipeDetailPage />} />
             <Route path="shopping" element={<ShoppingListsPage />} />
             <Route path="shopping/:id" element={<ShoppingListDetailPage />} />
