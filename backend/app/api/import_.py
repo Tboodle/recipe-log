@@ -24,7 +24,15 @@ def _parsed_to_recipe_in(parsed) -> RecipeIn:
         total_time=parsed.total_time,
         cuisine=parsed.cuisine,
         category=parsed.category,
-        ingredients=[IngredientIn(name=i) for i in parsed.ingredients],
+        ingredients=[
+            IngredientIn(
+                name=i.name,
+                quantity=i.quantity,
+                unit=i.unit,
+                notes=i.notes,
+            )
+            for i in parsed.ingredients
+        ],
         steps=[StepIn(description=s, order=idx) for idx, s in enumerate(parsed.steps)],
     )
 

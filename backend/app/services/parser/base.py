@@ -2,6 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 @dataclass
+class ParsedIngredient:
+    name: str
+    quantity: float | None = None
+    unit: str | None = None
+    notes: str | None = None
+
+@dataclass
 class ParsedRecipe:
     title: str | None = None
     description: str | None = None
@@ -14,7 +21,7 @@ class ParsedRecipe:
     total_time: int | None = None  # minutes
     cuisine: str | None = None
     category: str | None = None
-    ingredients: list[str] = field(default_factory=list)
+    ingredients: list[ParsedIngredient] = field(default_factory=list)
     steps: list[str] = field(default_factory=list)
 
 class RecipeParser(ABC):

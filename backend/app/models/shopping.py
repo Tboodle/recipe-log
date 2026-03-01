@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, UTC
-from sqlalchemy import String, DateTime, ForeignKey, Boolean
+from sqlalchemy import String, DateTime, ForeignKey, Boolean, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
@@ -22,7 +22,7 @@ class ShoppingItem(Base):
     list_id: Mapped[str] = mapped_column(String, ForeignKey("shopping_lists.id"), nullable=False)
     recipe_id: Mapped[str | None] = mapped_column(String, ForeignKey("recipes.id"), nullable=True)
     ingredient_name: Mapped[str] = mapped_column(String(500), nullable=False)
-    quantity: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    quantity: Mapped[float | None] = mapped_column(Float, nullable=True)
     unit: Mapped[str | None] = mapped_column(String(100), nullable=True)
     checked: Mapped[bool] = mapped_column(Boolean, default=False)
 

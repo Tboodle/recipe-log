@@ -1,5 +1,6 @@
 from recipe_scrapers import scrape_me, WebsiteNotImplementedError, NoSchemaFoundInWildMode
-from app.services.parser.base import RecipeParser, ParsedRecipe
+from app.services.parser.base import RecipeParser, ParsedRecipe, ParsedIngredient
+from app.utils.units import parse_ingredient_string
 
 def _duration_to_minutes(value) -> int | None:
     """Convert recipe-scrapers time value (int minutes) to int or None."""
@@ -23,7 +24,7 @@ class LocalRecipeParser(RecipeParser):
             except Exception:
                 return None
 
-        ingredients = safe(scraper.ingredients) or []
+        ingredients_raw = safe(scraper.ingredients) or []
         steps_raw = safe(scraper.instructions_list) or []
         steps = []
         for s in steps_raw:
@@ -44,7 +45,7 @@ class LocalRecipeParser(RecipeParser):
             total_time=_duration_to_minutes(safe(scraper.total_time)),
             cuisine=safe(scraper.cuisine),
             category=safe(scraper.category),
-            ingredients=ingredients,
+            ingredients=[parse_ingredient_string(i) for i in ingredients_raw],
             steps=steps,
         )
 
@@ -105,6 +106,8 @@ class LocalRecipeParser(RecipeParser):
                 continue  # skip noise like "ey,"
             if any(p.search(line) for p in time_re.values()):
                 break  # stop at timing metadata line
+            if ingredient_re.match(line):
+                break  # stop at first ingredient line
             clean = re.sub(r"\s*[|\\]+\s*$", "", line).strip()
             if clean:
                 title_parts.append(clean)
@@ -117,7 +120,7 @@ class LocalRecipeParser(RecipeParser):
             title = title_parts[0]
 
         # ── Pass 2: classify each line ───────────────────────────────────────
-        ingredients: list[str] = []
+        ingredients: list[ParsedIngredient] = []
         steps: list[str] = []
         step_buf: list[str] = []
         in_steps = False
@@ -149,7 +152,7 @@ class LocalRecipeParser(RecipeParser):
                     in_steps = False
 
             if ingredient_re.match(line) and not prose_re.search(line):
-                ingredients.append(line)
+                ingredients.append(parse_ingredient_string(line))
                 continue
 
         flush_step()

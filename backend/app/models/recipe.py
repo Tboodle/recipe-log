@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, UTC
-from sqlalchemy import String, DateTime, ForeignKey, Integer, Text, JSON, ARRAY
+from sqlalchemy import String, DateTime, ForeignKey, Integer, Text, JSON, ARRAY, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
@@ -54,7 +54,7 @@ class Ingredient(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     recipe_id: Mapped[str] = mapped_column(String, ForeignKey("recipes.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
-    quantity: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    quantity: Mapped[float | None] = mapped_column(Float, nullable=True)
     unit: Mapped[str | None] = mapped_column(String(100), nullable=True)
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
     order: Mapped[int] = mapped_column(Integer, default=0)
