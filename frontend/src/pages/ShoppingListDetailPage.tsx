@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useShoppingList, useToggleItem } from "@/hooks/useShoppingLists";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatQuantity } from "@/lib/quantity";
 
 export default function ShoppingListDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -55,9 +56,9 @@ export default function ShoppingListDetailPage() {
                   className="border-zinc-300"
                 />
                 <span className="text-zinc-800 leading-snug">
-                  {item.quantity && (
+                  {(item.quantity != null || item.unit) && (
                     <strong>
-                      {item.quantity}
+                      {formatQuantity(item.quantity)}
                       {item.unit ? ` ${item.unit}` : ""}{" "}
                     </strong>
                   )}
@@ -85,9 +86,9 @@ export default function ShoppingListDetailPage() {
                     className="border-zinc-300"
                   />
                   <span className="text-zinc-500 line-through leading-snug">
-                    {item.quantity && (
+                    {(item.quantity != null || item.unit) && (
                       <strong>
-                        {item.quantity}
+                        {formatQuantity(item.quantity)}
                         {item.unit ? ` ${item.unit}` : ""}{" "}
                       </strong>
                     )}
