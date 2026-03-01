@@ -15,7 +15,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   recipeId: string;
-  ingredientIds: string[];
+  ingredientIds?: string[];  // undefined = add all
 }
 
 export default function AddToListDialog({ open, onOpenChange, recipeId, ingredientIds }: Props) {
@@ -28,12 +28,14 @@ export default function AddToListDialog({ open, onOpenChange, recipeId, ingredie
     enabled: open,
   });
 
+  const buildBody = () =>
+    ingredientIds !== undefined
+      ? { recipe_id: recipeId, ingredient_ids: ingredientIds }
+      : { recipe_id: recipeId };
+
   const addToList = useMutation({
     mutationFn: (listId: string) =>
-      api.post(`/shopping/${listId}/add-from-recipe`, {
-        recipe_id: recipeId,
-        ingredient_ids: ingredientIds,
-      }),
+      api.post(`/shopping/${listId}/add-from-recipe`, buildBody()),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["shopping-lists"] });
       onOpenChange(false);
@@ -43,10 +45,7 @@ export default function AddToListDialog({ open, onOpenChange, recipeId, ingredie
   const createAndAdd = useMutation({
     mutationFn: async (name: string) => {
       const { data: list } = await api.post("/shopping", { name });
-      await api.post(`/shopping/${list.id}/add-from-recipe`, {
-        recipe_id: recipeId,
-        ingredient_ids: ingredientIds,
-      });
+      await api.post(`/shopping/${list.id}/add-from-recipe`, buildBody());
       return list;
     },
     onSuccess: () => {
@@ -56,13 +55,16 @@ export default function AddToListDialog({ open, onOpenChange, recipeId, ingredie
     },
   });
 
+  const title =
+    ingredientIds !== undefined
+      ? `Add ${ingredientIds.length} ingredient${ingredientIds.length !== 1 ? "s" : ""} to list`
+      : "Add all ingredients to list";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            Add {ingredientIds.length} ingredient{ingredientIds.length !== 1 ? "s" : ""} to list
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
           {lists?.map((list) => (
