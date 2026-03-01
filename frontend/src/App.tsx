@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useAuthStore } from "@/store/auth";
 import Layout from "@/components/Layout";
 import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import DashboardPage from "@/pages/DashboardPage";
 import RecipeListPage from "@/pages/RecipeListPage";
 import RecipeDetailPage from "@/pages/RecipeDetailPage";
@@ -46,7 +46,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route
             path="/"
             element={
