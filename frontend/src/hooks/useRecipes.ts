@@ -22,7 +22,7 @@ export interface RecipeListItem {
 export interface Ingredient {
   id: string;
   name: string;
-  quantity: string | null;
+  quantity: number | null;
   unit: string | null;
   notes: string | null;
   order: number;

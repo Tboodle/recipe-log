@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 export interface ShoppingItem {
   id: string;
   ingredient_name: string;
-  quantity: string | null;
+  quantity: number | null;
   unit: string | null;
   recipe_id: string | null;
   checked: boolean;
