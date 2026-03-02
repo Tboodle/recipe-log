@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, ShoppingCart } from "lucide-react";
+import { BookOpen, ShoppingCart, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 
 const links = [
   { to: "/", icon: BookOpen, label: "Recipes", match: (p: string) => p === "/" || p.startsWith("/recipes") },
   { to: "/shopping", icon: ShoppingCart, label: "Shopping", match: (p: string) => p.startsWith("/shopping") },
+  { to: "/settings", icon: Settings, label: "Settings", match: (p: string) => p.startsWith("/settings") },
 ];
 
 export default function Nav() {

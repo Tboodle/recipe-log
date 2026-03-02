@@ -15,6 +15,7 @@ def _recipe_with_relations():
         selectinload(Recipe.ingredients),
         selectinload(Recipe.steps),
         selectinload(Recipe.tags),
+        selectinload(Recipe.created_by),
     )
 
 @router.get("", response_model=list[RecipeListItem])
@@ -22,12 +23,13 @@ async def list_recipes(
     q: str | None = Query(None),
     tag_names: list[str] = Query(default=[]),
     cuisine: str | None = Query(None),
+    created_by_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     stmt = (
         select(Recipe)
-        .options(selectinload(Recipe.tags))
+        .options(selectinload(Recipe.tags), selectinload(Recipe.created_by))
         .where(Recipe.household_id == current_user.household_id)
         .order_by(Recipe.created_at.desc())
     )
@@ -35,6 +37,8 @@ async def list_recipes(
         stmt = stmt.where(or_(Recipe.title.ilike(f"%{q}%"), Recipe.description.ilike(f"%{q}%")))
     if cuisine:
         stmt = stmt.where(Recipe.cuisine.ilike(f"%{cuisine}%"))
+    if created_by_id:
+        stmt = stmt.where(Recipe.created_by_id == created_by_id)
     # AND filter: each selected tag name must match a tag on the recipe
     for name in tag_names:
         tag_alias = Tag.__table__.alias()
@@ -60,10 +64,11 @@ async def create_recipe(
     recipe = Recipe(
         id=str(uuid.uuid4()),
         household_id=current_user.household_id,
+        created_by_id=current_user.id,
         **body.model_dump(exclude={"tag_ids", "ingredients", "steps"}),
     )
     db.add(recipe)
-    await db.flush()  # flush so recipe.id is persisted and identity established
+    await db.flush()
 
     for i, ing in enumerate(body.ingredients):
         db.add(Ingredient(id=str(uuid.uuid4()), recipe_id=recipe.id, **ing.model_dump(exclude={"order"}), order=i))
@@ -122,7 +127,6 @@ async def update_recipe(
         db.add(Step(id=str(uuid.uuid4()), recipe_id=recipe.id, **step.model_dump(exclude={"order"}), order=i))
 
     if body.tag_ids is not None:
-        # Delete existing tag associations and re-insert
         await db.execute(delete(RecipeTag).where(RecipeTag.recipe_id == recipe_id))
         for tag_id in body.tag_ids:
             db.add(RecipeTag(recipe_id=recipe.id, tag_id=tag_id))

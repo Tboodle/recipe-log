@@ -27,6 +27,7 @@ class Recipe(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     household_id: Mapped[str] = mapped_column(String, ForeignKey("households.id"), nullable=False)
+    created_by_id: Mapped[str | None] = mapped_column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
@@ -45,6 +46,7 @@ class Recipe(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     household: Mapped["Household"] = relationship(back_populates="recipes")
+    created_by: Mapped["User | None"] = relationship("User", foreign_keys=[created_by_id])
     ingredients: Mapped[list["Ingredient"]] = relationship(back_populates="recipe", cascade="all, delete-orphan", order_by="Ingredient.order")
     steps: Mapped[list["Step"]] = relationship(back_populates="recipe", cascade="all, delete-orphan", order_by="Step.order")
     tags: Mapped[list["Tag"]] = relationship(secondary="recipe_tags", back_populates="recipes")

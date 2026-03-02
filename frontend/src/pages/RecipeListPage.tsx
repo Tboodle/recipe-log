@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, Search, SlidersHorizontal, Check, X } from "lucide-react";
-import { useRecipes } from "@/hooks/useRecipes";
+import { useRecipes, useTags, useUsers } from "@/hooks/useRecipes";
 import RecipeCard from "@/components/RecipeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,12 +26,18 @@ const FILTER_GROUPS: Array<{ label: string; tags: string[] }> = [
 export default function RecipeListPage() {
   const [q, setQ] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCreatorId, setSelectedCreatorId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+
+  const { data: allTags } = useTags();
+  const { data: users } = useUsers();
+  const customTags = allTags?.filter((t) => t.category === "custom") ?? [];
 
   const { data: recipes, isLoading } = useRecipes({
     q: q || undefined,
     tag_names: selectedTags.length ? selectedTags : undefined,
+    created_by_id: selectedCreatorId ?? undefined,
   });
 
   function toggleTag(name: string) {
@@ -40,7 +46,14 @@ export default function RecipeListPage() {
     );
   }
 
-  const hasFilters = selectedTags.length > 0;
+  const selectedCreatorName = users?.find((u) => u.id === selectedCreatorId)?.name;
+  const hasFilters = selectedTags.length > 0 || selectedCreatorId !== null;
+  const filterCount = selectedTags.length + (selectedCreatorId ? 1 : 0);
+
+  function clearAll() {
+    setSelectedTags([]);
+    setSelectedCreatorId(null);
+  }
 
   return (
     <div className="space-y-5">
@@ -77,16 +90,42 @@ export default function RecipeListPage() {
               Filter
               {hasFilters && (
                 <span className="ml-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-zinc-900 text-[10px] font-bold">
-                  {selectedTags.length}
+                  {filterCount}
                 </span>
               )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-0" align="end">
             <Command>
-              <CommandInput placeholder="Search tags..." />
+              <CommandInput placeholder="Search filters..." />
               <CommandList>
-                <CommandEmpty>No tags found.</CommandEmpty>
+                <CommandEmpty>No results found.</CommandEmpty>
+
+                {/* Creator filter — only shown when >1 user exists */}
+                {users && users.length > 1 && (
+                  <span key="creator">
+                    <CommandGroup heading="Added by">
+                      {users.map((user) => {
+                        const selected = selectedCreatorId === user.id;
+                        return (
+                          <CommandItem
+                            key={user.id}
+                            value={user.name}
+                            onSelect={() => setSelectedCreatorId(selected ? null : user.id)}
+                            className="cursor-pointer"
+                          >
+                            <span className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border transition-colors ${selected ? "border-amber-400 bg-amber-400" : "border-zinc-300"}`}>
+                              {selected && <Check className="h-3 w-3 text-zinc-900" />}
+                            </span>
+                            {user.name}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                    <CommandSeparator />
+                  </span>
+                )}
+
                 {FILTER_GROUPS.map((group, i) => (
                   <span key={group.label}>
                     {i > 0 && <CommandSeparator />}
@@ -110,11 +149,34 @@ export default function RecipeListPage() {
                     </CommandGroup>
                   </span>
                 ))}
+                {customTags.length > 0 && (
+                  <span key="custom">
+                    <CommandSeparator />
+                    <CommandGroup heading="Custom">
+                      {customTags.map(({ name }) => {
+                        const selected = selectedTags.includes(name);
+                        return (
+                          <CommandItem
+                            key={name}
+                            value={name}
+                            onSelect={() => toggleTag(name)}
+                            className="cursor-pointer"
+                          >
+                            <span className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border transition-colors ${selected ? "border-amber-400 bg-amber-400" : "border-zinc-300"}`}>
+                              {selected && <Check className="h-3 w-3 text-zinc-900" />}
+                            </span>
+                            {name}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </span>
+                )}
               </CommandList>
               {hasFilters && (
                 <div className="border-t p-1">
                   <button
-                    onClick={() => setSelectedTags([])}
+                    onClick={clearAll}
                     className="w-full text-center text-xs text-zinc-400 hover:text-zinc-600 py-1.5 rounded hover:bg-zinc-50 transition-colors"
                   >
                     Clear all filters
@@ -129,6 +191,14 @@ export default function RecipeListPage() {
       {/* Active filter chips */}
       {hasFilters && (
         <div className="flex flex-wrap gap-1.5">
+          {selectedCreatorName && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
+              {selectedCreatorName}
+              <button onClick={() => setSelectedCreatorId(null)} className="hover:opacity-70 ml-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
           {selectedTags.map((name) => (
             <span
               key={name}

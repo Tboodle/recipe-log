@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useUpdateRecipeTags } from "@/hooks/useRecipes";
+import { useUpdateRecipeTags, useTags } from "@/hooks/useRecipes";
 import type { Tag, TagIn } from "@/hooks/useRecipes";
 
 const PREDEFINED: Record<string, { label: string; tags: string[] }> = {
@@ -42,6 +42,8 @@ export default function TagEditor({ recipeId, tags }: Props) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingTagsRef = useRef<TagIn[]>([]);
   const updateTags = useUpdateRecipeTags(recipeId);
+  const { data: allTags } = useTags();
+  const existingCustomTags = allTags?.filter((t) => t.category === "custom") ?? [];
 
   // Clean up debounce timer on unmount
   useEffect(() => {
@@ -156,6 +158,29 @@ export default function TagEditor({ recipeId, tags }: Props) {
 
           <div>
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Custom</p>
+            {existingCustomTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {existingCustomTags.map(({ name }) => {
+                  const active = tagNames.has(name);
+                  const color = CATEGORY_COLORS.custom;
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => active ? removeTag(name) : addTag(name, "custom")}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium transition-colors"
+                      style={
+                        active
+                          ? { backgroundColor: color + "22", color, borderColor: color + "44" }
+                          : { backgroundColor: "transparent", color: "#71717a", borderColor: "#d4d4d8" }
+                      }
+                    >
+                      {active && <X className="h-3 w-3 mr-1" />}
+                      {name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             <div className="flex gap-2">
               <Input
                 ref={inputRef}

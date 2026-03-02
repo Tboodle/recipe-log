@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Clock, ChefHat, Users, Trash2, ShoppingCart, Play, ArrowLeft } from "lucide-react";
+import { Clock, ChefHat, Users, Trash2, ShoppingCart, Play, Pencil, ArrowLeft } from "lucide-react";
 import { useRecipe, useDeleteRecipe } from "@/hooks/useRecipes";
 import AddToListDialog from "@/components/AddToListDialog";
 import TagEditor from "@/components/TagEditor";
@@ -75,6 +75,11 @@ export default function RecipeDetailPage() {
               <ShoppingCart className="h-4 w-4" />
               Add to List
             </Button>
+            <Link to={`/recipes/${id}/edit`}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Pencil className="h-4 w-4" /> Edit
+              </Button>
+            </Link>
             <Link to={`/recipes/${id}/cook`}>
               <Button className="bg-green-500 text-white hover:bg-green-600 font-bold gap-2">
                 <Play className="h-4 w-4" /> Cook

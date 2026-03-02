@@ -9,9 +9,12 @@ import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import DashboardPage from "@/pages/DashboardPage";
 import RecipeListPage from "@/pages/RecipeListPage";
 import RecipeDetailPage from "@/pages/RecipeDetailPage";
+import RecipeFormPage from "@/pages/RecipeFormPage";
 import CookModePage from "@/pages/CookModePage";
 import ShoppingListsPage from "@/pages/ShoppingListsPage";
 import ShoppingListDetailPage from "@/pages/ShoppingListDetailPage";
+import JoinPage from "@/pages/JoinPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +51,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Navigate to="/login" replace />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/join/:token" element={<JoinPage />} />
           <Route
             path="/"
             element={
@@ -58,9 +62,12 @@ export default function App() {
           >
             <Route index element={<RecipeListPage />} />
             <Route path="recipes" element={<Navigate to="/" replace />} />
+            <Route path="recipes/new" element={<RecipeFormPage />} />
             <Route path="recipes/:id" element={<RecipeDetailPage />} />
+            <Route path="recipes/:id/edit" element={<RecipeFormPage />} />
             <Route path="shopping" element={<ShoppingListsPage />} />
             <Route path="shopping/:id" element={<ShoppingListDetailPage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route
             path="/recipes/:id/cook"

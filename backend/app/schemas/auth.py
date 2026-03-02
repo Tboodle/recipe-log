@@ -1,10 +1,11 @@
 from pydantic import BaseModel, EmailStr
 
 class RegisterRequest(BaseModel):
-    household_name: str
+    household_name: str = ""
     name: str
     email: EmailStr
     password: str
+    invite_token: str | None = None
 
 class LoginRequest(BaseModel):
     email: EmailStr

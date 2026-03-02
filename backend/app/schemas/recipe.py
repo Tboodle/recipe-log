@@ -28,6 +28,11 @@ class TagOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class CreatorOut(BaseModel):
+    id: str
+    name: str
+    model_config = {"from_attributes": True}
+
 class RecipeIn(BaseModel):
     title: str
     description: str | None = None
@@ -69,6 +74,7 @@ class RecipeOut(BaseModel):
     tags: list[TagOut] = []
     ingredients: list[IngredientOut] = []
     steps: list[StepOut] = []
+    created_by: CreatorOut | None = None
 
     model_config = {"from_attributes": True}
 
@@ -82,5 +88,6 @@ class RecipeListItem(BaseModel):
     servings: str | None
     tags: list[TagOut] = []
     created_at: datetime
+    created_by: CreatorOut | None = None
 
     model_config = {"from_attributes": True}

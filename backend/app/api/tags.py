@@ -90,6 +90,6 @@ async def update_recipe_tags(
     result = await db.execute(
         select(Recipe)
         .options(selectinload(Recipe.ingredients), selectinload(Recipe.steps), selectinload(Recipe.tags))
-        .where(Recipe.id == recipe_id)
+        .where(Recipe.id == recipe_id, Recipe.household_id == current_user.household_id)
     )
     return result.scalar_one()
