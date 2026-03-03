@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/auth";
 import Layout from "@/components/Layout";
 import LoginPage from "@/pages/LoginPage";
 import AuthCallbackPage from "@/pages/AuthCallbackPage";
-import DashboardPage from "@/pages/DashboardPage";
 import RecipeListPage from "@/pages/RecipeListPage";
 import RecipeDetailPage from "@/pages/RecipeDetailPage";
 import RecipeFormPage from "@/pages/RecipeFormPage";
