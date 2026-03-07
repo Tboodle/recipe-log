@@ -157,8 +157,9 @@ def parse_ingredient_string(line: str) -> "ParsedIngredient":
     )
     if m:
         qty_str, unit_str, name = m.group(1), m.group(2), m.group(3)
+        clean_name = _re.sub(r'^of\s+(?:the\s+)?', '', name.strip(), flags=_re.IGNORECASE)
         return ParsedIngredient(
-            name=name.strip(),
+            name=clean_name.strip(),
             quantity=parse_fraction(qty_str.strip()) if qty_str else None,
             unit=unit_str.strip().lower() if unit_str else None,
         )

@@ -18,6 +18,7 @@ export default function RecipeDetailPage() {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [addAllOpen, setAddAllOpen] = useState(false);
+  const [multiplier, setMultiplier] = useState(1);
 
   const toggleIngredient = (ingId: string) => {
     setCheckedIds((prev) => {
@@ -35,7 +36,7 @@ export default function RecipeDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 px-4">
         <Skeleton className="h-72 w-full rounded-2xl" />
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="h-48 w-full" />
@@ -48,7 +49,7 @@ export default function RecipeDetailPage() {
   const selectedIds = Array.from(checkedIds);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 px-4 sm:px-0">
       {/* Back link */}
       <Link to="/recipes" className="inline-flex items-center gap-1 text-sm text-zinc-400 hover:text-zinc-600">
         <ArrowLeft className="h-4 w-4" /> All recipes
@@ -56,45 +57,48 @@ export default function RecipeDetailPage() {
 
       {/* Hero image */}
       {recipe.image_url && (
-        <div className="h-72 rounded-2xl overflow-hidden shadow-md">
+        <div className="h-56 sm:h-72 rounded-2xl overflow-hidden shadow-md">
           <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
         </div>
       )}
 
       {/* Header */}
       <div className="space-y-3">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-4xl font-extrabold text-zinc-900 leading-tight">{toTitleCase(recipe.title)}</h1>
-          <div className="flex gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
-              onClick={() => setAddAllOpen(true)}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Add to List
+        <h1 className="text-2xl sm:text-4xl font-extrabold text-zinc-900 leading-tight">
+          {toTitleCase(recipe.title)}
+        </h1>
+
+        {/* Action buttons */}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
+            onClick={() => setAddAllOpen(true)}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span className="hidden sm:inline">Add to List</span>
+          </Button>
+          <Link to={`/recipes/${id}/edit`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Pencil className="h-4 w-4" />
+              <span className="hidden sm:inline">Edit</span>
             </Button>
-            <Link to={`/recipes/${id}/edit`}>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Pencil className="h-4 w-4" /> Edit
-              </Button>
-            </Link>
-            <Link to={`/recipes/${id}/cook`}>
-              <Button className="bg-green-500 text-white hover:bg-green-600 font-bold gap-2">
-                <Play className="h-4 w-4" /> Cook
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDelete}
-              disabled={deleteRecipe.isPending}
-              className="text-red-400 hover:text-red-600 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4" />
+          </Link>
+          <Link to={`/recipes/${id}/cook`}>
+            <Button className="bg-green-500 text-white hover:bg-green-600 font-bold gap-2">
+              <Play className="h-4 w-4" /> Cook
             </Button>
-          </div>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDelete}
+            disabled={deleteRecipe.isPending}
+            className="text-red-400 hover:text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Tags */}
@@ -148,17 +152,35 @@ export default function RecipeDetailPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-zinc-900">Ingredients</h2>
-          {selectedIds.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
-              onClick={() => setAddToListOpen(true)}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Add {selectedIds.length} to list
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {selectedIds.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50"
+                onClick={() => setAddToListOpen(true)}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                <span className="hidden sm:inline">Add {selectedIds.length} to list</span>
+                <span className="sm:hidden">{selectedIds.length}</span>
+              </Button>
+            )}
+            <div className="flex rounded-lg border border-zinc-200 overflow-hidden">
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setMultiplier(n)}
+                  className={`px-2.5 py-1 text-xs font-bold transition-colors ${
+                    multiplier === n
+                      ? "bg-amber-400 text-zinc-900"
+                      : "text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50"
+                  }`}
+                >
+                  {n}×
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         <ul className="space-y-2">
           {recipe.ingredients.map((ing) => (
@@ -172,7 +194,7 @@ export default function RecipeDetailPage() {
               <label htmlFor={ing.id} className="text-zinc-700 cursor-pointer leading-snug">
                 {(ing.quantity != null || ing.unit) && (
                   <span className="font-semibold text-zinc-900">
-                    {formatQuantity(ing.quantity)}
+                    {formatQuantity(ing.quantity != null ? ing.quantity * multiplier : null)}
                     {ing.unit ? ` ${ing.unit}` : ""}{" "}
                   </span>
                 )}

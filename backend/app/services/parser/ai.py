@@ -29,8 +29,9 @@ _SYSTEM_PROMPT = """You are a recipe parser. Extract structured recipe data from
 Rules:
 - ingredients[].quantity: a NUMBER (e.g. 0.5, 2.0) — NOT a string. Use null if uncountable.
 - ingredients[].unit: the unit of measure as a lowercase string, or null.
-- ingredients[].name: the ingredient name and any notes (e.g. "flour, sifted").
+- ingredients[].name: just the ingredient name, no leading prepositions. "2 cloves of garlic" → name is "garlic", unit is "clove". Include prep notes after a comma: "flour, sifted".
 - steps: ordered list of instruction strings.
+- The input may be OCR-extracted text from a recipe image — handle imperfect formatting and line breaks gracefully.
 - Return only valid JSON, no markdown fences.
 """
 

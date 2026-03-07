@@ -49,6 +49,13 @@ export default function TagEditor({ recipeId, tags }: Props) {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, []);
 
+  // Sync local state when server data changes (but not mid-edit)
+  useEffect(() => {
+    if (!debounceRef.current) {
+      setOptimisticTags(tags);
+    }
+  }, [tags]);
+
   const tagNames = new Set(optimisticTags.map((t) => t.name));
 
   function toTagIn(tag: Tag): TagIn {
