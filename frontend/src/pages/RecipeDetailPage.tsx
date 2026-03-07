@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Clock, ChefHat, Users, Trash2, ShoppingCart, Play, Pencil, ArrowLeft } from "lucide-react";
 import { useRecipe, useDeleteRecipe } from "@/hooks/useRecipes";
@@ -43,6 +43,11 @@ export default function RecipeDetailPage() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (recipe) document.title = `${recipe.title} — RecipeLog`;
+    return () => { document.title = "RecipeLog"; };
+  }, [recipe]);
 
   if (!recipe) return <p className="text-zinc-500">Recipe not found.</p>;
 
