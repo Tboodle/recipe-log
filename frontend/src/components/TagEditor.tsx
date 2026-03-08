@@ -56,16 +56,14 @@ export default function TagEditor({ recipeId, tags }: Props) {
   }
 
   function scheduleUpdate(next: Tag[]) {
-    // Update UI immediately
+    const prev = optimisticTags;
     setOptimisticTags(next);
     pendingTagsRef.current = next.map(toTagIn);
-    // Debounce: cancel any queued API call and restart the timer
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null;
       updateTags.mutate(pendingTagsRef.current, {
-        // Sync from the real server response once it arrives
-        onSuccess: (updated) => setOptimisticTags(updated.tags),
+        onError: () => setOptimisticTags(prev),
       });
     }, 350);
   }

@@ -99,6 +99,9 @@ export function useUpdateRecipeTags(recipeId: string) {
   return useMutation({
     mutationFn: (tags: TagIn[]) =>
       api.put(`/tags/recipes/${recipeId}`, tags).then((r) => r.data as Recipe),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ["recipe", recipeId] });
+    },
     onSuccess: (updated) => {
       qc.setQueryData(["recipe", recipeId], updated);
       qc.invalidateQueries({ queryKey: ["recipes"] });

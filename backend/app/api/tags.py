@@ -87,6 +87,10 @@ async def update_recipe_tags(
 
     await db.commit()
 
+    # Expunge the recipe from the identity map so the next SELECT fetches
+    # a completely fresh copy from the DB (avoids selectinload skipping the
+    # secondary tags query because it sees the relationship was already loaded).
+    db.expunge(recipe)
     result = await db.execute(
         select(Recipe)
         .options(selectinload(Recipe.ingredients), selectinload(Recipe.steps), selectinload(Recipe.tags))
