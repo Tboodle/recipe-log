@@ -81,7 +81,7 @@ class AIRecipeParser(RecipeParser):
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_content},
             ],
-            max_completion_tokens=2000,
+            max_completion_tokens=8000,
         )
         return response.choices[0].message.content or "{}"
 
