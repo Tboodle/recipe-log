@@ -21,10 +21,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
   setToken: (token) => {
-    sessionStorage.setItem("token", token);
+    localStorage.setItem("token", token);
   },
   fetchMe: async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       set({ user: null, isLoading: false });
       return;
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   logout: () => {
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     set({ user: null });
     window.location.href = "/login";
   },

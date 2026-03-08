@@ -20,6 +20,11 @@ export default function RecipeDetailPage() {
   const [addAllOpen, setAddAllOpen] = useState(false);
   const [multiplier, setMultiplier] = useState(1);
 
+  useEffect(() => {
+    if (recipe) document.title = `${recipe.title} — RecipeLog`;
+    return () => { document.title = "RecipeLog"; };
+  }, [recipe]);
+
   const toggleIngredient = (ingId: string) => {
     setCheckedIds((prev) => {
       const next = new Set(prev);
@@ -43,11 +48,6 @@ export default function RecipeDetailPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (recipe) document.title = `${recipe.title} — RecipeLog`;
-    return () => { document.title = "RecipeLog"; };
-  }, [recipe]);
 
   if (!recipe) return <p className="text-zinc-500">Recipe not found.</p>;
 

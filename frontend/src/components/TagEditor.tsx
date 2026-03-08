@@ -191,9 +191,10 @@ export default function TagEditor({ recipeId, tags }: Props) {
               <Input
                 ref={inputRef}
                 value={customInput}
-                onChange={(e) => setCustomInput(e.target.value)}
+                onChange={(e) => setCustomInput(e.target.value.slice(0, 30))}
                 onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
                 placeholder="Type a tag…"
+                maxLength={30}
                 className="h-7 text-sm"
               />
               <Button

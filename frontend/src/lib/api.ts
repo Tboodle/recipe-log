@@ -6,7 +6,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -19,7 +19,7 @@ api.interceptors.response.use(
       const onPublicPage = ["/login", "/register"].includes(window.location.pathname);
       // Don't redirect on the startup auth check or if already on a public page
       if (!onPublicPage && !url.includes("/auth/me")) {
-        sessionStorage.removeItem("token");
+        localStorage.removeItem("token");
         window.location.href = "/login";
       }
     }
