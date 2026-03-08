@@ -58,7 +58,9 @@ async def import_from_image(
     parser = get_parser()
     try:
         text = await ocr.extract_text(image_bytes)
+        print(f"DEBUG OCR TEXT ({len(text)} chars): {repr(text[:500])}", flush=True)
         parsed = await parser.parse_text(text)
+        print(f"DEBUG PARSED: title={parsed.title!r} ingredients={len(parsed.ingredients)} steps={len(parsed.steps)}", flush=True)
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Could not extract recipe from image: {e}")
     return _parsed_to_recipe_in(parsed)
