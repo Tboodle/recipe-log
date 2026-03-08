@@ -77,7 +77,6 @@ class AIRecipeParser(RecipeParser):
     async def _ask(self, user_content: str) -> str:
         response = await self.client.chat.completions.create(
             model="gpt-5-mini",
-            response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_content},
