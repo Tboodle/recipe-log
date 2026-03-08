@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://localhost:8000/api/auth/google/callback"
     frontend_url: str = "http://localhost:5173"
 
-    parser_backend: str = "local"  # "local" or "ai"
+    parser_backend: str = "local"  # "local" | "ai" | "hybrid" (tesseract OCR + AI parser)
     openai_api_key: str = ""
 
 settings = Settings()

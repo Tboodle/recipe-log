@@ -6,4 +6,4 @@ def get_ocr() -> OCRService:
         from app.services.ocr.ai import AIOCRService
         return AIOCRService()
     from app.services.ocr.local import LocalOCRService
-    return LocalOCRService()
+    return LocalOCRService()  # "local" and "hybrid" both use tesseract
