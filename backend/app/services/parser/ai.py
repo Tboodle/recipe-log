@@ -8,8 +8,9 @@ from app.core.config import settings
 from app.services.parser.base import ParsedIngredient, ParsedRecipe, RecipeParser
 from app.utils.units import parse_ingredient_string
 
-_SYSTEM_PROMPT = """You are a recipe parser. Extract structured recipe data from the provided text or URL content and return it as JSON with this shape:
+_SYSTEM_PROMPT = """You are a recipe data extractor. Your job is to organize text into structured JSON — NOT to rewrite, summarize, or improve the text.
 
+Return JSON with this shape:
 {
   "title": "string or null",
   "description": "string or null",
@@ -29,9 +30,10 @@ _SYSTEM_PROMPT = """You are a recipe parser. Extract structured recipe data from
 Rules:
 - ingredients[].quantity: a NUMBER (e.g. 0.5, 2.0) — NOT a string. Use null if uncountable.
 - ingredients[].unit: the unit of measure as a lowercase string, or null.
-- ingredients[].name: just the ingredient name, no leading prepositions. "2 cloves of garlic" → name is "garlic", unit is "clove". Include prep notes after a comma: "flour, sifted".
-- steps: ordered list of instruction strings.
-- The input may be OCR-extracted text from a recipe image — handle imperfect formatting and line breaks gracefully.
+- ingredients[].name: copy the ingredient name EXACTLY as written. Do not rephrase.
+- steps: copy each instruction WORD FOR WORD from the source text. Do not rephrase, combine, summarize, or add anything not in the original. If the text has 10 steps, output 10 steps.
+- Do NOT invent or add any information that is not present in the source text.
+- The input may be OCR text with minor noise (stray characters, odd line breaks) — ignore obvious OCR artifacts but otherwise preserve the exact wording.
 - Return only valid JSON, no markdown fences.
 """
 
