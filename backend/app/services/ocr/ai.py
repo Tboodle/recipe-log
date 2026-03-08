@@ -33,7 +33,7 @@ class AIOCRService(OCRService):
     async def extract_text(self, image_bytes: bytes) -> str:
         b64 = _to_jpeg_b64(image_bytes)
         response = await self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-5-mini",
             messages=[
                 {
                     "role": "user",
