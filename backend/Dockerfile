@@ -3,9 +3,7 @@ FROM python:3.12-slim
 # System deps: tesseract for OCR, libpq for asyncpg
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        tesseract-ocr \
-        libpq-dev \
-        gcc && \
+        tesseract-ocr && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
