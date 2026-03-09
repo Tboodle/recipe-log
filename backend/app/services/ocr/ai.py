@@ -42,10 +42,9 @@ class AIOCRService(OCRService):
                         {
                             "type": "text",
                             "text": (
-                                "Please transcribe all text visible in this recipe image. "
-                                "Include the recipe title, all ingredients with quantities, "
-                                "and all instructions. Preserve the original wording as closely "
-                                "as possible. Return only the transcribed text, no commentary."
+                                "Copy every word of text visible in this image exactly as written. "
+                                "Do not rephrase, interpret, summarize, or add anything. "
+                                "Return only the raw text from the image, nothing else."
                             ),
                         },
                         {
