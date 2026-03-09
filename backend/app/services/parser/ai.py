@@ -77,6 +77,7 @@ class AIRecipeParser(RecipeParser):
     async def _ask(self, user_content: str) -> str:
         response = await self.client.chat.completions.create(
             model="gpt-5-nano",
+            reasoning_effort="low",
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_content},

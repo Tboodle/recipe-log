@@ -34,6 +34,7 @@ class AIOCRService(OCRService):
         b64 = _to_jpeg_b64(image_bytes)
         response = await self.client.chat.completions.create(
             model="gpt-5-nano",
+            reasoning_effort="low",
             messages=[
                 {
                     "role": "user",
